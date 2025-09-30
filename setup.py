@@ -1,8 +1,15 @@
 from langchain_community.document_loaders import DirectoryLoader
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings
+from langchain_chroma import Chroma
 
-DATA_PATH = "data"
+CHROMA_PATH = "chroma"
+db = Chroma.from_documents(
+    chunks, OpenAIEmbeddings(), persist_directory=CHROMA_PATH
+)
+
+DATA_PATH = "data/cleaned"
 
 def load_documents():
     loader = DirectoryLoader(DATA_PATH, glob="*.txt")
@@ -23,7 +30,8 @@ def chunk_documents(documents: list[Document]):
 def main():
     documents = load_documents()
     chunks = chunk_documents(documents)
-    print(chunks[0])
+    print(chunks[0].page_content)
+    print(chunks[0].metadata)
 
 if __name__ == "__main__":
     main()

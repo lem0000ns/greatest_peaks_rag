@@ -1,3 +1,12 @@
+from langchain_experimental.text_splitter import SemanticChunker
+from langchain_openai import OpenAIEmbeddings
+
+def semantic_group(content: str, model_name: str):
+    embeddings = OpenAIEmbeddings(model=model_name)
+    text_splitter = SemanticChunker(embeddings, breakpoint_threshold_type="percentile")
+    groups = text_splitter.split_text(content)
+    return groups
+
 def clean_content(content: str):
     no_annotations_content = []
     for i, line in enumerate(content.split("\n")):
@@ -21,15 +30,16 @@ def clean_content(content: str):
 
 def clean_text_files():
     file_names = ["bird.txt", "curry.txt", "duncan.txt", "durant.txt", "garnett.txt", "hakeem.txt", "jordan.txt", "kareem.txt", "kobe.txt", "lebron.txt", "magic.txt", "robinson.txt", "russell.txt", "shaq.txt", "walton.txt"]
-    for file_name in file_names[:1]:
-        with open(f"data/{file_name}", "r") as file:
+    for file_name in file_names:
+        with open(f"data/original/{file_name}", "r") as file:
             content = file.read()
         if content[0] != '[':
-            print("Content has already been cleaned")
+            print(f"{file_name} has already been cleaned or is in unexpected format (should start with [)")
             continue
-        cleaned_content = clean_content(content)
-        with open(f"data/{file_name}", "w") as file:
-            file.write(cleaned_content)
+        cleaned_content = semantic_group(clean_content(content), "sentence-transformers/all-MiniLM-L6-v2")
+        with open(f"data/cleaned/{file_name}", "w") as file:
+            for i, group in enumerate(cleaned_content):
+                file.write(group.strip() + "\n\n")
 
 if __name__ == "__main__":
     clean_text_files()
