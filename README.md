@@ -39,4 +39,4 @@ python query_data.py --query "What makes Stephen Curry one of the greatest offen
 3. **Sentence-segmented** → `data/3_sentences/`
 4. **Grouped content** → `data/4_groups/` (used for RAG)
 
-The system uses ChromaDB for vector storage and OpenAI embeddings for semantic search, retrieving the most relevant content chunks to answer your questions about basketball peaks and analysis.
+ChromaDB used for vector storage and OpenAI embeddings for semantic search, retrieving the most relevant content chunks to answer relevant questions.
