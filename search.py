@@ -7,6 +7,7 @@ from langchain.prompts.prompt import PromptTemplate
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 import os
 from langchain_openai import ChatOpenAI
+from get_data import input_players
 
 load_dotenv()
 
@@ -14,23 +15,31 @@ search = GoogleSerperAPIWrapper()
 
 rag_chain = get_qa_chain()
 
+input_players = ", ".join([player.capitalize() for player in input_players.split(",")])
+print(input_players)
+
 tools = [
     Tool(
         name="RAG",
-        func=rag_chain.invoke,
-        description="Useful when you're asked Retrieval Augmented Generation(RAG) related questions"
+        func=lambda input, **kwargs: rag_chain.invoke(
+            {"input": input, "chat_history": kwargs.get("chat_history", [])}
+        ),
+        description=f"Use this FIRST to answer questions about NBA players. Contains detailed information about: {input_players}. Input should be your question about these players."
     ),
     Tool(
         name="Google Search",
-        description="For answering questions that need current information (e.g. current players) or when you don't know the answer, use Google search to find the answer",
+        description="Use ONLY if RAG cannot provide sufficient information. Search the web for additional details. Input should be a search query.",
         func=search.run,
     )
 ]
 
-CHARACTER_PROMPT = """Answer the following questions as best you can. You have access to the following tools:
+CHARACTER_PROMPT = """You are a helpful assistant that answers questions about NBA players. You have access to the following tools:
 {tools}
 
-For any questions requiring tools, you should first search the provided knowledge base. If you don't find relevant information from provided knowledge base, then use Google search to find related information.
+IMPORTANT INSTRUCTIONS:
+1. ALWAYS try the RAG tool FIRST for any question about NBA players
+2. Only use Google Search if RAG cannot provide sufficient information
+3. Once a final answer is found, STOP and provide the Final Answer immediately
 
 To use a tool, you MUST use the following format:
 1. Thought: Do I need to use a tool? Yes
@@ -77,8 +86,6 @@ def main():
     # use agent chain to simulate conversation
     agent_chain = get_agent_chain()
     response = agent_chain.invoke({"input": user_query})
-    print(response.keys())
-    print("-" * 100)
     print(response['output'])
 
 if __name__ == "__main__":

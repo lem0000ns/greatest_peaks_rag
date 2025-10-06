@@ -33,12 +33,19 @@ def print_docs_information(query_results):
         print("-" * 100)
 
 def get_qa_chain():
-    vectorstore = Chroma(collection_name="greatest_peaks_collection", persist_directory=CHROMA_PATH, embedding_function=OpenAIEmbeddings())
+    vectorstore = Chroma(collection_name="players_collection", persist_directory=CHROMA_PATH, embedding_function=OpenAIEmbeddings())
 
-    rag_prompt = ChatPromptTemplate.from_messages([
-        ("system", PROMPT_TEMPLATE),
-        ("user", "{input}"),
-    ])
+    # Use from_template for retrieval chains
+    rag_prompt = ChatPromptTemplate.from_template(
+        "You are an assistant for question-answering tasks. "
+        "Use the following pieces of retrieved context to answer "
+        "the question. If you don't know the answer, say that you "
+        "don't know. Use three sentences maximum and keep the "
+        "answer concise."
+        "\n\n"
+        "Context: {context}\n\n"
+        "Question: {input}"
+    )
     
     retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
     question_answer_chain = create_stuff_documents_chain(llm=ChatOpenAI(model_name='gpt-4o-mini'), prompt=rag_prompt)

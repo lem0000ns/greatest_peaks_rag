@@ -14,7 +14,7 @@ openai.api_key = os.environ['OPENAI_API_KEY']
 
 CHROMA_PATH = "./chroma"
 
-DATA_PATH = "data/4_groups"
+DATA_PATH = "data"
 
 def load_documents():
     loader = DirectoryLoader(DATA_PATH, glob="*.txt")
@@ -42,7 +42,7 @@ def store_chroma(chunks: list[Document]):
     if os.path.exists(CHROMA_PATH):
         shutil.rmtree(CHROMA_PATH)
     # create new database from documents
-    vectorstore = Chroma(collection_name="greatest_peaks_collection", persist_directory=CHROMA_PATH, embedding_function=OpenAIEmbeddings())
+    vectorstore = Chroma(collection_name="players_collection", persist_directory=CHROMA_PATH, embedding_function=OpenAIEmbeddings())
     vectorstore.add_documents(chunks)
     print(f"Stored {len(chunks)} chunks in {CHROMA_PATH}")
 
