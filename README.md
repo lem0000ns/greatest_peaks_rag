@@ -1,8 +1,6 @@
-# "Greatest Peaks" RAG
+# NBA Players RAG
 
-A Retrieval-Augmented Generation (RAG) system that allows you to query and get insights from Ben Taylor's "Greatest Peaks" basketball analysis series.
-
-**Source:** https://www.youtube.com/watch?v=o9XbDCXLE94&list=PLtzZl14BrKjSMb4IFWSy0qh_nFGiy7PoZ
+A Retrieval-Augmented Generation (RAG) system that allows you to query and get insights from NBA players, using Wikipedia pages as context.
 
 ## Setup
 
