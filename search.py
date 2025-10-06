@@ -7,22 +7,21 @@ from langchain.prompts.prompt import PromptTemplate
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 import os
 from langchain_openai import ChatOpenAI
-from get_data import input_players
 
 load_dotenv()
 
 search = GoogleSerperAPIWrapper()
 
 rag_chain = get_qa_chain()
+with open("input_players.txt", "r") as f:
+    input_players = f.read()
 
-input_players = ", ".join([player.capitalize() for player in input_players.split(",")])
-print(input_players)
 
 tools = [
     Tool(
         name="RAG",
-        func=lambda input, **kwargs: rag_chain.invoke(
-            {"input": input, "chat_history": kwargs.get("chat_history", [])}
+        func=lambda q: rag_chain.invoke(
+            {"input": q}
         ),
         description=f"Use this FIRST to answer questions about NBA players. Contains detailed information about: {input_players}. Input should be your question about these players."
     ),
@@ -65,14 +64,13 @@ Thought: {agent_scratchpad}
 
 def get_agent_chain():
     prompt = PromptTemplate.from_template(CHARACTER_PROMPT)
-    agent = create_react_agent(llm=ChatOpenAI(model_name='gpt-4o-mini'), tools=tools, prompt=prompt)
+    agent = create_react_agent(llm=ChatOpenAI(model_name='gpt-4-turbo'), tools=tools, prompt=prompt)
     memory = ConversationBufferWindowMemory(memory_key='chat_history', k=5, return_messages=True, output_key="output")
     agent_chain = AgentExecutor(agent=agent,
                             tools=tools,
                             memory=memory,
                             max_iterations=5,
                             handle_parsing_errors=True,
-                            verbose=True,
                             )
     return agent_chain
 

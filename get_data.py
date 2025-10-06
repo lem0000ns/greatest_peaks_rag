@@ -1,8 +1,6 @@
 from langchain_community.document_loaders import WikipediaLoader
 from langchain.schema import Document
 
-input_players = ""
-
 # load wikipedia data for each player
 def get_wiki_data(players):
     rag_docs = []
@@ -24,12 +22,15 @@ def store_wiki_data_in_file(rag_docs):
         with open(f"data/{doc.metadata['title']}.txt", "w") as f:
             f.write(doc.page_content)
 
+def write_to_file(players):
+    with open("input_players.txt", "w") as f:
+        f.write(", ".join(players))
 
 if __name__ == "__main__":
     players = []
     count = 0
     player_string = input("Enter at most 10 NBA players, separated by commas: ")
-    input_players = player_string
     players = player_string.split(",")
+    write_to_file(players)
     rag_docs = get_wiki_data(players)
     store_wiki_data_in_file(rag_docs)
