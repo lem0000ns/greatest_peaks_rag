@@ -38,11 +38,4 @@ A Retrieval-Augmented Generation (RAG) system that allows you to query and get i
 python search.py --query "What makes Stephen Curry one of the greatest offensive players ever?"
 ```
 
-### Data Processing Pipeline
-
-1. **Original transcripts** → `data/1_original/`
-2. **Cleaned data** → `data/2_cleaned/`
-3. **Sentence-segmented** → `data/3_sentences/`
-4. **Grouped content** → `data/4_groups/` (used for RAG)
-
-ChromaDB used for vector storage and OpenAI embeddings for semantic search, retrieving the most relevant content chunks to answer relevant questions.
+ChromaDB used for vector storage and OpenAI embeddings for semantic search, retrieving the most relevant content chunks to answer relevant questions. SerperAPI used as a fallback in case RAG can't answer user query.
