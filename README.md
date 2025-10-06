@@ -19,7 +19,13 @@ A Retrieval-Augmented Generation (RAG) system that allows you to query and get i
    OPENAI_API_KEY=your_openai_api_key_here
    ```
 
-3. **Build the vector database:**
+3. **Input NBA players or other topics of RAG discussion:**
+
+   ```bash
+   python get_data.py
+   ```
+
+4. **Store in vector database:**
    ```bash
    python store_db.py
    ```
@@ -29,7 +35,7 @@ A Retrieval-Augmented Generation (RAG) system that allows you to query and get i
 **Basic query:**
 
 ```bash
-python query_data.py --query "What makes Stephen Curry one of the greatest offensive players ever?"
+python search.py --query "What makes Stephen Curry one of the greatest offensive players ever?"
 ```
 
 ### Data Processing Pipeline
