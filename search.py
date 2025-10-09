@@ -8,7 +8,6 @@ from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 import os
 from langchain_openai import ChatOpenAI
 
-
 load_dotenv()
 
 search = GoogleSerperAPIWrapper()
@@ -18,11 +17,9 @@ with open("input_players.txt", "r") as f:
     input_players = f.read()
 
 
-def rag_tool_func(q, **kwargs):
-    print(f"\n[DEBUG] kwargs: {kwargs}")
-    print(f"\n[DEBUG] RAG tool called with question: {q}")
-    print(f"\n[DEBUG] Chat history: {kwargs.get('chat_history', [])}")
-    return rag_chain.invoke({"input": q, "chat_history": kwargs.get("chat_history", [])})
+def rag_tool_func(q):
+    print(f"\nRAG tool called with question: {q}")
+    return rag_chain.invoke({"input": q})
 
 tools = [
     Tool(
@@ -30,11 +27,11 @@ tools = [
         func=rag_tool_func,
         description=f"Use this FIRST to answer questions about NBA players. Contains detailed information about: {input_players}."
     ),
-    # Tool(
-    #     name="Google Search",
-    #     description="Use ONLY if RAG cannot provide sufficient information. Search the web for additional details. Input should be a search query.",
-    #     func=search.run,
-    # )
+    Tool(
+        name="Google Search",
+        description="Use ONLY if RAG cannot provide sufficient information. Search the web for additional details. Input should be a search query.",
+        func=search.run,
+    )
 ]
 
 REACT_PROMPT = """You are a helpful assistant that answers questions about NBA players. You have access to the following tools:
@@ -76,6 +73,7 @@ def get_agent_chain():
                             memory=memory,
                             max_iterations=5,
                             handle_parsing_errors=True,
+                            verbose=True,
                             )
     return agent_chain
 

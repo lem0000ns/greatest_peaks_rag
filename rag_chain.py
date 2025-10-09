@@ -24,9 +24,6 @@ RAG_PROMPT = (
     "answer concise."
     "\n\n"
     "{context}"
-    "\n\n"
-    "Chat history:"
-    "{chat_history}"
 )
 
 def print_docs_information(query_results):
