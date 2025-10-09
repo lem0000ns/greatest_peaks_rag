@@ -3,6 +3,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.messages import HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 import openai
@@ -15,7 +16,7 @@ openai.api_key = os.environ['OPENAI_API_KEY']
 
 CHROMA_PATH = "./chroma"
 
-PROMPT_TEMPLATE = (
+RAG_PROMPT = (
     "You are an assistant for question-answering tasks. "
     "Use the following pieces of retrieved context to answer "
     "the question. If you don't know the answer, say that you "
@@ -23,6 +24,9 @@ PROMPT_TEMPLATE = (
     "answer concise."
     "\n\n"
     "{context}"
+    "\n\n"
+    "Chat history:"
+    "{chat_history}"
 )
 
 def print_docs_information(query_results):
@@ -38,7 +42,7 @@ def get_qa_chain():
     # Use from_template for retrieval chains
     rag_prompt = ChatPromptTemplate.from_messages(
         [
-            ("system", PROMPT_TEMPLATE),
+            ("system", RAG_PROMPT),
             ("human", "{input}"),
         ]
     )
@@ -50,8 +54,17 @@ def get_qa_chain():
 
 def main():
     rag_chain = get_qa_chain()
-    response = rag_chain.invoke({"input":  "What high school did Stephen Curry go to?"})
-    print(response["answer"])
+    
+    chat_history = [
+        HumanMessage(content="Who is Lebron James?"),
+        AIMessage(content="Lebron James is a basketball player.")
+    ]
+    
+    response2 = rag_chain.invoke({
+        "input": "What high school did he go to?",
+        "chat_history": chat_history
+    })
+    print(response2["answer"])
 
 if __name__ == "__main__":
     main()

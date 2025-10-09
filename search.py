@@ -8,6 +8,7 @@ from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 import os
 from langchain_openai import ChatOpenAI
 
+
 load_dotenv()
 
 search = GoogleSerperAPIWrapper()
@@ -17,22 +18,26 @@ with open("input_players.txt", "r") as f:
     input_players = f.read()
 
 
+def rag_tool_func(q, **kwargs):
+    print(f"\n[DEBUG] kwargs: {kwargs}")
+    print(f"\n[DEBUG] RAG tool called with question: {q}")
+    print(f"\n[DEBUG] Chat history: {kwargs.get('chat_history', [])}")
+    return rag_chain.invoke({"input": q, "chat_history": kwargs.get("chat_history", [])})
+
 tools = [
     Tool(
         name="RAG",
-        func=lambda q: rag_chain.invoke(
-            {"input": q}
-        ),
-        description=f"Use this FIRST to answer questions about NBA players. Contains detailed information about: {input_players}. Input should be your question about these players."
+        func=rag_tool_func,
+        description=f"Use this FIRST to answer questions about NBA players. Contains detailed information about: {input_players}."
     ),
-    Tool(
-        name="Google Search",
-        description="Use ONLY if RAG cannot provide sufficient information. Search the web for additional details. Input should be a search query.",
-        func=search.run,
-    )
+    # Tool(
+    #     name="Google Search",
+    #     description="Use ONLY if RAG cannot provide sufficient information. Search the web for additional details. Input should be a search query.",
+    #     func=search.run,
+    # )
 ]
 
-CHARACTER_PROMPT = """You are a helpful assistant that answers questions about NBA players. You have access to the following tools:
+REACT_PROMPT = """You are a helpful assistant that answers questions about NBA players. You have access to the following tools:
 {tools}
 
 IMPORTANT INSTRUCTIONS:
@@ -63,7 +68,7 @@ Thought: {agent_scratchpad}
 
 
 def get_agent_chain():
-    prompt = PromptTemplate.from_template(CHARACTER_PROMPT)
+    prompt = PromptTemplate.from_template(REACT_PROMPT)
     agent = create_react_agent(llm=ChatOpenAI(model_name='gpt-4-turbo'), tools=tools, prompt=prompt)
     memory = ConversationBufferWindowMemory(memory_key='chat_history', k=5, return_messages=True, output_key="output")
     agent_chain = AgentExecutor(agent=agent,
@@ -75,16 +80,15 @@ def get_agent_chain():
     return agent_chain
 
 def main():
-    # get query from command line
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--query", required=True, type=str)
-    args = parser.parse_args()
-    user_query = args.query
-
-    # use agent chain to simulate conversation
     agent_chain = get_agent_chain()
-    response = agent_chain.invoke({"input": user_query})
-    print(response['output'])
+    while True:
+        user_query = input("> ")
+        if user_query == "q":
+            break
+        # use agent chain to simulate conversation
+        response = agent_chain.invoke({"input": user_query})
+        print(response['output'])
+    print("Goodbye!")
 
 if __name__ == "__main__":
     main()
