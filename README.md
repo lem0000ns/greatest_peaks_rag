@@ -1,4 +1,4 @@
-# NBA Players RAG
+# Harry Potter RAG Chatbot
 
 A Retrieval-Augmented Generation (RAG) system that allows you to query and get insights from Harry Potter related lore, cited from hp-lexicon.org
 
@@ -13,7 +13,7 @@ A Retrieval-Augmented Generation (RAG) system that allows you to query and get i
 2. **Set up environment variables:**
    Create a `.env` file in the project root with your OpenAI API key:
 
-   ```
+   ```bash
    OPENAI_API_KEY=your_openai_api_key_here
    ```
 
@@ -25,8 +25,8 @@ A Retrieval-Augmented Generation (RAG) system that allows you to query and get i
 
 4. **Initiate conversation with Harry Potter knowledge-infused chatbot!**
 
-```bash
-python search.py"
-```
+   ```bash
+   python search.py
+   ```
 
 BeautifulSoup + requests utilized for mass document scraping from hp-lexicon.org. ChromaDB used for vector storage and OpenAI embeddings for semantic search, retrieving the most relevant content chunks to answer relevant questions. SerperAPI used as a fallback in case RAG can't answer user query.
