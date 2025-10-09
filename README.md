@@ -1,6 +1,6 @@
 # NBA Players RAG
 
-A Retrieval-Augmented Generation (RAG) system that allows you to query and get insights from NBA players, using Wikipedia pages as context.
+A Retrieval-Augmented Generation (RAG) system that allows you to query and get insights from Harry Potter related lore, cited from hp-lexicon.org
 
 ## Setup
 
@@ -17,23 +17,16 @@ A Retrieval-Augmented Generation (RAG) system that allows you to query and get i
    OPENAI_API_KEY=your_openai_api_key_here
    ```
 
-3. **Input NBA players or other topics of RAG discussion:**
+3. **Store all relevant documents in vector database:**
 
-   ```bash
-   python get_data.py
-   ```
-
-4. **Store in vector database:**
    ```bash
    python store_db.py
    ```
 
-### Querying the RAG System
-
-**Basic query:**
+4. **Initiate conversation with Harry Potter knowledge-infused chatbot!**
 
 ```bash
-python search.py --query "What makes Stephen Curry one of the greatest offensive players ever?"
+python search.py"
 ```
 
-ChromaDB used for vector storage and OpenAI embeddings for semantic search, retrieving the most relevant content chunks to answer relevant questions. SerperAPI used as a fallback in case RAG can't answer user query.
+BeautifulSoup + requests utilized for mass document scraping from hp-lexicon.org. ChromaDB used for vector storage and OpenAI embeddings for semantic search, retrieving the most relevant content chunks to answer relevant questions. SerperAPI used as a fallback in case RAG can't answer user query.

@@ -13,9 +13,6 @@ load_dotenv()
 search = GoogleSerperAPIWrapper()
 
 rag_chain = get_qa_chain()
-with open("input_players.txt", "r") as f:
-    input_players = f.read()
-
 
 def rag_tool_func(q):
     print(f"\nRAG tool called with question: {q}")
@@ -25,7 +22,7 @@ tools = [
     Tool(
         name="RAG",
         func=rag_tool_func,
-        description=f"Use this FIRST to answer questions about NBA players. Contains detailed information about: {input_players}."
+        description=f"Use this FIRST to answer questions about any Harry Potter related lore, including characters, magic, places, and events."
     ),
     Tool(
         name="Google Search",
@@ -34,11 +31,11 @@ tools = [
     )
 ]
 
-REACT_PROMPT = """You are a helpful assistant that answers questions about NBA players. You have access to the following tools:
+REACT_PROMPT = """You are a helpful assistant that answers questions about Harry Potter related lore. You have access to the following tools:
 {tools}
 
 IMPORTANT INSTRUCTIONS:
-1. ALWAYS try the RAG tool FIRST for any question about NBA players
+1. ALWAYS try the RAG tool FIRST for any question about Harry Potter related lore
 2. Only use Google Search if RAG cannot provide sufficient information
 3. Once a final answer is found, STOP and provide the Final Answer immediately
 
