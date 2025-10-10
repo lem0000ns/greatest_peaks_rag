@@ -9,6 +9,7 @@ class Scraper:
         self.documents_scraped = 0
         self.batch_size = batch_size
         self.store_callback = store_callback
+        self.alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
     
     def increment_documents_scraped(self):
         self.documents_scraped += 1
@@ -50,13 +51,12 @@ class Scraper:
                 self.scrape_raw_text(char_url)
                 print(f"Scraped character: {char_url}")
 
-    # TODO: COMPLETE TYPES OF PLACES
     def retrieve_places(self):
         print("Retrieving places...")
         url = "https://www.hp-lexicon.org/places/"
         places_page = requests.get(url)
         soup = BeautifulSoup(places_page.text, "html.parser")
-        group_names = ["Scotland", "London and Surrey", "The West Country", "Elsewhere in Britain", "Elsewhere in the World"]
+        # group_names = ["Scotland", "London and Surrey", "The West Country", "Elsewhere in Britain", "Elsewhere in the World"]
 
         for i, group_name in enumerate(group_names):
             heading = "h3"
@@ -71,6 +71,27 @@ class Scraper:
                 place_url = place.get("href")
                 self.scrape_raw_text(place_url)
                 print(f"Place: {place_url}")
+        
+        # types of places
+        heading = soup.find("h2", string="Types of Places")
+        place_types = heading.find_next_sibling("ul")
+        for pt in place_types.find_all("a"):
+            print("=" * 100)
+            print(f"Retrieving type of place: {pt.get_text()}")
+            print("=" * 100)
+            pt_url = pt.get("href")
+            # go through each letter in catalog
+            for letter in self.alphabet:
+                print("Retrieving letter: ", letter)
+                cur_pt_url = f"{pt_url}?letter={letter}"
+                cur_pt_page = requests.get(cur_pt_url)
+                letter_soup = BeautifulSoup(cur_pt_page.text, "html.parser")
+                middle_column = letter_soup.find_all("div", class_="col-md-12")[1]
+                cur_pt_items = middle_column.find_all("article")
+                for item in cur_pt_items:
+                    item_url = item.find("link").get("href")
+                    self.scrape_raw_text(item_url)
+                    print("Finished scraping place: ", item_url)
 
 if __name__ == "__main__":
     try:
