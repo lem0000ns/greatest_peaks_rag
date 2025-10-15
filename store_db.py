@@ -55,8 +55,7 @@ def main():
     vectorstore = Chroma(collection_name="harry_potter_collection", persist_directory=CHROMA_PATH, embedding_function=OpenAIEmbeddings())
 
     scraper = Scraper(batch_size=10, store_callback=lambda: store_chroma_callback(vectorstore))
-    scraper.retrieve_characters()
-    scraper.retrieve_places()
+    scraper.retrieve_magic()
 
     clear_data_folder()
 
