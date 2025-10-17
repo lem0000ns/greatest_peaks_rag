@@ -51,11 +51,15 @@ def main():
     # clear chroma database first
     if os.path.exists(CHROMA_PATH):
         shutil.rmtree(CHROMA_PATH)
+    # clear scraped_urls.json
+    if os.path.exists("scraped_urls.json"):
+        os.remove("scraped_urls.json")
+        print("Cleared scraped_urls.json")
     # create new database from documents
     vectorstore = Chroma(collection_name="harry_potter_collection", persist_directory=CHROMA_PATH, embedding_function=OpenAIEmbeddings())
 
-    scraper = Scraper(batch_size=10, store_callback=lambda: store_chroma_callback(vectorstore))
-    scraper.retrieve_magic()
+    scraper = Scraper(batch_size=20, store_callback=lambda: store_chroma_callback(vectorstore))
+    scraper.retrieve_things()
 
     clear_data_folder()
 

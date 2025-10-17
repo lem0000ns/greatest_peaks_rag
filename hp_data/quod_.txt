@@ -1,0 +1,8 @@
+Quod
+"Any player in possession of the Quod when it explodes must leave the pitch."
+-- Kennilworthy Whisp, Quidditch Through the Ages (QA8)
+A modified “Quaffle” used in the game of Quodpot, which explodes if it is in play too long before being placed in the “pot” of Quodpot solution (which serves as a kind of goal in the game) (QA8).
+Pottermore feature: Games and Pastimes in the Wizarding World
+Harry Potter Wiki: Quodpot
+
+							

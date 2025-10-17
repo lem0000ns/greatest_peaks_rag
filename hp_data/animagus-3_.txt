@@ -1,0 +1,65 @@
+Animagus
+"The Animagus transformation can go horribly wrong - one reason the Ministry keeps a close watch on those attempting to do it."
+-- Remus Lupin (PA18)
+An Animagus is a witch or wizard who is capable of transforming himself – or herself – into the form of an animal.
+Ordinary Transfiguration of a human into an animal’s shape results in the human having an animal’s brain (QA1) (although Draco Malfoy‘s experience in GF13 is worth considering since he was apparently able to retain enough of his faculties to try to reach the dungeons while in ferret form, and also Viktor Krum‘s half transformation in GF26). Those who master the advanced Transfiguration of turning into an animal while retaining their mental capacities  – referred to as Animagi – are rare; the number of Animagi in the wizarding population is thought to be around one in a thousand (PmP).
+
+More precisely, an Animagus is a witch or wizard who has the ability to Transfigure herself/himself into a certain animal at will while staying in their own mind, retaining their intelligence, memories and sense of self; however, they do have simplified feelings and emotions and take on an animalish edge to their thoughts and desires, for example eating the food their animal form would normally eat. Even if they remain in their Animagus form for a long period of time, like Peter Pettigrew, the length of their life expectancy will remain human (PmP).
+The Animagus Transfiguration can be performed wandlessly, but this can only be accomplished by advanced Animagi (PmP). It is possible for another witch or wizard who is sufficiently knowledgeable to force an Animagus to Transfigure from animal shape back into human shape; the incantation (if any) for the spell is not currently known, but it is accompanied by a flash of light around the target Animagus. If used on a true animal, the “resume natural shape” spell would have no effect (PA19).
+
+An Animagus normally retains his or her clothing, spectacles, and so on throughout the transformation, disappearing when the Animagus is in animal shape but reappearing when human shape is resumed. Sirius, for example, when Transfiguring into human shape for a meeting with Harry, Ron, and Hermione outside Hogsmeade, retained his wizard’s robes (GF27). The clothes become part of the Transfiguration process, absorbed into the skin. The Animagus can also choose to leave their clothes behind, and the longer they have been an Animagus the easier it is for them to choose the nature of their transformation (PmP).
+In some cases items such as spectacles may affect the animal’s appearance. For example, both Minerva McGonagall and Rita Skeeter wear spectacles in human shape, and these are not only transformed with the Animagus but in these two cases form part of the resulting animal’s markings (PA6, GF37).
+
+The Animagus form almost always matches the witch or wizard’s Patronus. While the form of your Patronus can change during the course of your life, there is no recorded instance of the Animagus form also changing to match it. However, as it is very rare to be an Animagus and also be able to cast a Patronus (as well as rare for a Patronus to change), there isn’t enough data on the subject to know for certain what happens in this situation (PmP).
+An Animagus appears to have some ability to communicate with true animals, although it is not known whether an Animagus must be in Animagus form to do so. For example, Sirius was able to understand fairly complex concepts from Crookshanks during their alliance in Harry‘s third year, such as the fact that Crookshanks had stolen a list of Gryffindor Tower‘s passwords from a boy’s bedside table (PA19). Peter Pettigrew has an affinity with rats, and was able to learn Voldemort‘s hiding place in Albania from their knowledge of a place in the forest that was deadly to small animals such as themselves (GF33). Whatever this form of communication is, it is evidently not speech; Sirius did not know Crookshanks’ name until Harry, Ron, and Hermione told him, although he had been working with Crookshanks for months at that point (PA19).
+The Improper Use of Magic Office maintains an Animagus Register of all known Animagi (PmP). The register is a matter of public record; Hermione Granger at age thirteen could consult it for the information therein, including the names of registered persons (PA19). The register keeps a record of each known Animagus (GF26), noting the kind of animal that Animagus transforms into and their distinguishing markings.
+
+There are serious penalties for being an Animagus and failing to register, most commonly a stretch of imprisonment in Azkaban (PmP). The threat of exposure as an unregistered Animagus was enough to persuade Rita Skeeter to take a year off from her job as a scandal-mongering reporter (GF37).
+(summarised from PmP)
+This process is long, complex and tedious; skill in both Transfiguration and Potions is required, not to mention no small amount of patience (MagSp, PmP). It can take several years to complete. When it goes wrong, there are horrible consequences usually involving half-human, half-animal mutations. These mistakes are irreversible, and the witch or wizard in question remains in this state for the rest of their life (PmP).
+
+The type of animal the Animagus becomes is not a matter of choice, but of personality (AOL, Sch2, WBD, MagSp, PmP).
+The animal's size, temperament and even markings may reflect the witch or wizard. For instance, Peter Pettigrew is small in stature and thus his Animagus form is a small animal. However, he was also a sneaky traitor, so his status as a rat should have been a warning to his friends that all was not well (PA18).
+There were only seven Animagi registered in the twentieth century, one being Minerva McGonagall and the other six unknown (PA19). However, there were at least four more that went unregistered by the Ministry: James Potter, Sirius Black, Peter Pettigrew and Rita Skeeter.
+The students at Uagadou are known for being particularly adept at self-transformation and the school has an Animagus team, which put on a display of synchronised transforming at an International Symposium of Animagi (WSch, Pm).
+The Native American legend of skin walkers - evil wizards who could transform into animals at will - has its basis in Animagi; Native American Animagi were falsely rumoured to have gained their powers by sacrificing their family members (MNA, Pm).
+Falco Aesalon (first recorded Animagus)
+Falcon (FW)
+Sirius Black
+Dog, very large with black fur (PA19)
+Cliodna (a.k.a. Cliodne)
+Bird (FW)
+Morgan le Fey (a.k.a. Morgana)
+Bird (FW)
+Minerva McGonagall
+Tabby cat with spectacle markings around her eyes, matching her own spectacles (PS1, PA6, PA19)
+Peter Pettigrew
+Rat, formerly with toe missing on right front paw (PA19)
+James Potter
+Stag (PA19)
+Rita Skeeter
+Beetle with spectacle markings around her antennae, matching her own spectacles (GF37)
+Babbitty the washerwoman transforms into a rabbit in the story "Babbitty Rabbitty and Her Cackling Stump" (TBB/BR)
+Adrian Tutley
+Gerbil (Pm)
+Animagus (an-i-MAH-jus OR an-i-MAY-jus)
+From Latin "animalis" (animal) and "magus" (magic user)
+Plural: Animagi
+Q: If you were an Animagus, what kind of animal would you be?
+A: I'd like to be an otter - that's my favourite animal. It would be depressing if I turned out to be a slug or something.
+- JKR on Animagi (Sch2)
+Q: When you turn into an Animagus, can you choose what animal you become? Or does this get "assigned" to you?
+A: No, you can't choose. You become the animal that suits you best. Imagine the humiliation when you finally transform after years of study and find that you most closely resemble a warthog.
+-- JKR on the role of personality in becoming an Animagus (WBD)
+We don't know whether the wealth of unregistered Animagi we encounter in the series is just a strange coincidence, or if it's a regular occurence in the wizarding world; if it's the latter, the number of Animagi is surely higher than the believed one in a thousand. --RP
+It's interesting to note that we don't know what the legal restrictions on Animagi are in any countries other than Britain. At Uagadou for example, which is somewhere in Africa, it sounds as though Animagus transformation is actually included in the school curriculum. --RP
+Writing by J K Rowling on WizardingWorld (Pottermore): Uagadou
+Tumbler (JonSnowWhite): Animagi by J K Rowling
+The Animal Paradox as represented in the Harry Potter series by booksblnktsandt
+Harry Potter Wiki: Animagus
+MuggleNet: Animagus Forms of the New Generation
+The-Leaky-Cauldron: Animal Attraction by Clarissa P
+DwellingOnDreams blog and podcast: Animagus Forms, and The People Who Have Them
+WizardingWorld (Pottermore) features:
+
+							
