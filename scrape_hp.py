@@ -8,6 +8,23 @@ import shutil
 
 # TODO: EVENTS, SOURCES
 
+def clear_hp_data():
+    """Clears hp_data folder contents."""
+    if os.path.exists("hp_data"):
+        for file in os.listdir("hp_data"):
+            os.remove(os.path.join("hp_data", file))
+        print("Cleared hp_data folder")
+    else:
+        print("hp_data folder does not exist")
+
+def clear_scraped_urls():
+    """Clears scraped_urls.json file."""
+    if os.path.exists("scraped_urls.json"):
+        os.remove("scraped_urls.json")
+        print("Cleared scraped_urls.json")
+    else:
+        print("scraped_urls.json file does not exist")
+
 def timing_decorator(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -86,14 +103,39 @@ class Scraper:
             os.remove(self.scraped_urls_file)
         print("Scraped URLs tracker has been reset")
 
-    def scrape_raw_text(self, url, is_article=False, is_novel=False):
-        """Scrapes all <p> and <li> elements in order of appearance after the navbar. If is_article is True, it scrapes the article opening paragraph. If is_novel is True, it scrapes links included in the chapter page."""
+    # scrape alphabetical catalog of magical items & devices, magical and mundane plants
+    def scrape_catalog_by_letter(self, base_url):
+        """Scrapes a catalog page that's organized by letter."""
+        for letter in self.alphabet:
+            while True:
+                try:
+                    page = requests.get(base_url.format(letter=letter), headers=self.headers)
+                    soup = BeautifulSoup(page.text, "html.parser")
+                    middle_column = soup.find_all("div", class_="col-md-12")[1]
+                    items_list = middle_column.find_all("article")
+                    for item in items_list:
+                        link_elem = item.find("link")
+                        if not link_elem:
+                            continue
+                        item_url = link_elem.get("href")
+                        if not item_url:
+                            continue
+                        self.scrape_raw_text(item_url)
+                        print("Finished scraping category: ", item_url)
+                    break
+                except (requests.exceptions.ConnectionError, ConnectionResetError) as e:
+                    print(f"Connection error retrieving page: {e}. Retrying in 10 seconds...")
+                    time.sleep(10)
+                except Exception as e:
+                    break
+
+    def scrape_raw_text(self, url, is_article=False, recursive=False, is_timeline=False):
+        """Scrapes all <p> and <li> elements in order of appearance after the navbar. If is_article is True, it scrapes the article opening paragraph. If recursive is True, it scrapes links included in the chapter page."""
         # Check if URL has already been scraped
         if self.is_url_scraped(url):
             print(f"Skipping already scraped URL: {url}")
             return
         
-        tries = 0
         while True:
             try:
                 character_page = requests.get(url, headers=self.headers)
@@ -120,16 +162,16 @@ class Scraper:
                     print(f"No section found for {url}")
                     break
                 elements = section.find_all(['p', 'li'])
-                if is_novel:
+                if recursive:
                     links = section.find_all("a")
                     for link in links:
                         link_url = link.get("href")
                         if not link_url:
                             continue
-                        print("Scraping link within chapter: ", link_url)
+                        print("Scraping link within document: ", link_url)
                         # only scrape links in current chapter
                         if "hapter" not in link_url and "attachment_id" not in link_url:
-                            self.scrape_raw_text(link_url, is_novel=False)
+                            self.scrape_raw_text(link_url, recursive=False)
 
                 # try to get fact box content if it exists
                 try:
@@ -159,24 +201,25 @@ class Scraper:
                     text = text.rsplit("Editor", 1)[0]
                 if "Copyright" in text:
                     text = text.rsplit("Copyright", 1)[0]
+                
+                if is_timeline:
+                    return text
+                
+                self.mark_url_as_scraped(url)  # Mark URL as scraped
+                self.increment_documents_scraped()
 
                 filename = '_'.join(url.split('/')[-2:])
                 with open(f"hp_data/{filename}.txt", "w") as f:
                     f.write(text)
-                self.increment_documents_scraped()
-                self.mark_url_as_scraped(url)  # Mark URL as scraped
                 break
             except (requests.exceptions.ConnectionError, ConnectionResetError) as e:
-                tries += 1
-                if tries > 2:
-                    break
                 print(f"Connection error for {url}: {e}. Retrying in 10 seconds...")
                 time.sleep(10)
             except Exception as e:
                 break
     
-    def scrape_alphabetical_catalog(self, heading, wizarding_world=False):
-        """Scrapes alphabetical catalog of items. If wizarding_world is True, it only scrapes the last item."""
+    def scrape_alphabetical_catalog(self, heading):
+        """Scrapes alphabetical catalog of items."""
         if not heading:
             print("No heading found for scrape_alphabetical_catalog")
             return
@@ -185,8 +228,6 @@ class Scraper:
             print(f"No ul sibling found for heading: {heading.get_text()}")
             return
         categories = ul_sibling.find_all("a")
-        if wizarding_world:
-            categories = categories[4:]
         for cat in categories:
             print("=" * 100)
             print(f"Retrieving category: {cat.get_text()}")
@@ -233,7 +274,6 @@ class Scraper:
                 quote_page = requests.get(url, headers=self.headers)
                 soup = BeautifulSoup(quote_page.text, "html.parser")
                 quotes_list = soup.find_all("li")
-                print(len(quotes_list))
                 text = ""
                 for quote in quotes_list:
                     text += quote.get_text() + "\n"
@@ -248,7 +288,6 @@ class Scraper:
             except Exception as e:
                 break
 
-    # THIS DOES NOT RETRIEVE TIMELINES
     @timing_decorator
     def retrieve_characters(self):
         """Retrieves all characters from the characters page."""
@@ -283,6 +322,31 @@ class Scraper:
                     continue
                 self.scrape_raw_text(char_url)
                 print(f"Scraped character: {char_url}")
+        
+        # scrape alphabetical catalog of characters
+        alphabetical_catalog_url = "https://www.hp-lexicon.org/character/?letter={letter}"
+        for letter in self.alphabet:
+            while True:
+                try:
+                    page = requests.get(alphabetical_catalog_url.format(letter=letter), headers=self.headers)
+                    soup = BeautifulSoup(page.text, "html.parser")
+                    middle_column = soup.find_all("div", class_="col-md-12")[1]
+                    items_list = middle_column.find_all("article")
+                    for item in items_list:
+                        link_elem = item.find("link")
+                        if not link_elem:
+                            continue
+                        item_url = link_elem.get("href")
+                        if not item_url:
+                            continue
+                        self.scrape_raw_text(item_url)
+                        print("Finished scraping category: ", item_url)
+                    break
+                except (requests.exceptions.ConnectionError, ConnectionResetError) as e:
+                    print(f"Connection error retrieving page: {e}. Retrying in 10 seconds...")
+                    time.sleep(10)
+                except Exception as e:
+                    break
 
     @timing_decorator
     def retrieve_places(self):
@@ -325,6 +389,9 @@ class Scraper:
         # types of places
         heading = soup.find("h2", string="Types of Places")
         self.scrape_alphabetical_catalog(heading)
+
+        
+        self.scrape_catalog_by_letter("https://www.hp-lexicon.org/place/?letter={letter}")
     
     @timing_decorator
     def retrieve_magic(self):
@@ -340,17 +407,16 @@ class Scraper:
                 print(f"Connection error retrieving magic page: {e}. Retrying in 10 seconds...")
                 time.sleep(10)
         
-        magic_groups_catalogs = ["Spells", "Potions", "Magical Items & Devices", "Magical and Mundane Plants"]
+        magic_groups_catalogs = ["Spells", "Potions"]
         for group_name in magic_groups_catalogs:
-            if group_name != "Magical Items & Devices":
-                heading = soup.find("h2", string=group_name)
-            else:
-                heading = soup.select_one("html > body > article > section > div > div > section > div > div:nth-of-type(1) > div:nth-of-type(1) > h2:nth-of-type(3)")
+            heading = soup.find("h2", string=group_name)
             self.scrape_alphabetical_catalog(heading)
-        magic_groups = ["Miscellaneous Magic", "Fields of Magical Study", "Quotes from J.K. Rowling"]
+        magic_groups = ["Magical Items & Devices", "Magical and Mundane Plants", "Miscellaneous Magic", "Fields of Magical Study", "Quotes from J.K. Rowling"]
         for group_name in magic_groups:
             if group_name == "Fields of Magical Study":
                 heading = soup.select_one("#content > div > div > section > div > div:nth-of-type(1) > div:nth-of-type(1) > h2:nth-of-type(7)")
+            elif group_name == "Magical Items & Devices":
+                heading = soup.select_one("#content > div > div > section > div > div:nth-of-type(1) > div:nth-of-type(1) > h2:nth-of-type(3)")
             else:
                 heading = soup.find("h2", string=group_name)
             if not heading:
@@ -373,6 +439,14 @@ class Scraper:
                     self.scrape_quotes(magic_url)
                 print(f"Magic: {magic_url}")
 
+        # Scrape magical items & devices
+        magical_items_url = "https://www.hp-lexicon.org/thing-category/magical-objects/?letter={letter}"
+        self.scrape_catalog_by_letter(self, magical_items_url)
+
+        # Scrape magical and mundane plants
+        mam_plants_url = "https://www.hp-lexicon.org/thing-category/plants/?letter={letter}"
+        self.scrape_catalog_by_letter(self, mam_plants_url)
+
     @timing_decorator
     def retrieve_things(self):
         """Retrieves all things from the things page."""
@@ -386,9 +460,9 @@ class Scraper:
                 print(f"Connection error retrieving things page: {e}. Retrying in 10 seconds...")
                 time.sleep(10)
         
-        # scrape explore the wizarding world
+        # scrape alphabetical catalog of words and terms in wizarding world
+        self.scrape_catalog_by_letter("https://www.hp-lexicon.org/thing-category/words-and-terms/?letter={letter}")
         explore_wizarding_world = soup.find("h2", string="Explore the Wizarding World")
-        self.scrape_alphabetical_catalog(explore_wizarding_world, wizarding_world=True)
 
         # raw text from each page
         if explore_wizarding_world:
@@ -560,7 +634,7 @@ class Scraper:
             for chapter in chapters:
                 chapter_url = chapter.get("href")
                 if chapter_url:
-                    self.scrape_raw_text(chapter_url, is_novel=True)
+                    self.scrape_raw_text(chapter_url, recursive=True)
         
         # fantastic beasts and where to find them
         fb_url = "https://www.hp-lexicon.org/source/other-potter-books/fb/"
@@ -579,7 +653,7 @@ class Scraper:
             chapter_links = chapter.find_all("a")
             chapter_url = chapter_links[-1].get("href")
             if chapter_url:
-                self.scrape_raw_text(chapter_url, is_novel=True)
+                self.scrape_raw_text(chapter_url, recursive=True)
 
     @timing_decorator
     def retrieve_all(self):
@@ -589,26 +663,90 @@ class Scraper:
         self.retrieve_magic()
         self.retrieve_things()
         self.retrieve_creatures()
+        self.retrieve_novels()
+        self.retrieve_events()
         # Save all scraped URLs at the end
         self._save_scraped_urls()
         print(f"Scraping complete! Total URLs scraped: {len(self.scraped_urls)}")
 
+    @timing_decorator
+    def retrieve_events(self):
+        events_url = "https://www.hp-lexicon.org/events-and-timelines/#timeline_of_major_events"
+        self.scrape_raw_text(events_url)
+
+        def scrape_timeline(url):
+            print(f"Scraping timeline: {url}")
+            if self.is_url_scraped(url):
+                print(f"Skipping already scraped URL: {url}")
+                return
+            if "attachment" in url:
+                return
+            page = requests.get(url, headers=self.headers)
+            soup = BeautifulSoup(page.text, "html.parser")
+            column = soup.select_one("html > body > article > section > div > div")
+            timeline_text_parts = []
+            if column:
+                all_events = column.find_all("article")
+                for event in all_events:
+                    time = event.select_one(".timeline-tmtime").get_text()
+                    timeline_label = event.select_one(".timeline_tmlabel")
+                    links = timeline_label.select("a")
+                    title_url = links[0].get("href")
+                    print(f"Scraping title within timeline: {title_url}")
+                    timeline_text_parts.append(self.scrape_raw_text(title_url, is_timeline=True))
+                    self.mark_url_as_scraped(title_url)
+            timeline_text = '\n'.join(timeline_text_parts)
+            filename = '_'.join(url.split('/')[-2:])
+            with open(f"hp_data/{filename}.txt", "w") as f:
+                f.write(timeline_text)
+            self.increment_documents_scraped()
+            self.mark_url_as_scraped(url)
+
+        events_page = requests.get(events_url, headers=self.headers)
+        soup = BeautifulSoup(events_page.text, "html.parser")
+        section = soup.select_one("html > body > article > section > div > div > section > div > div:nth-of-type(1) > div:nth-of-type(1)")
+        if section:
+            timeline_links = section.find_all("a")
+            for link in timeline_links:
+                # break at Additional resources section
+                if link.get_text() == "Hogwarts Year Calendar":
+                    break
+                timeline_url = link.get("href")
+                if timeline_url:
+                    try:
+                        scrape_timeline(timeline_url)
+                    except Exception as e:
+                        print(f"Error scraping timeline: {e}")
+                        continue
+        
+        # scrape additional resources
+        additional_resources_headline = soup.find("h2", string="Additional resources")
+        ar_list = additional_resources_headline.find_next_sibling("ul")
+        if ar_list:
+            for i, link in enumerate(ar_list.find_all("a")):
+                ar_url = link.get("href")
+                if ar_url:
+                    try:
+                        self.scrape_raw_text(ar_url, recursive=True)
+                    except Exception as e:
+                        print(f"Error scraping additional resource: {e}")
+                        continue
+        
+        # scrape hogwarts classes
+        classes = ["astronomy-class", "charms-class", "defense-against-the-dark-arts", "herbology-class", "history-of-magic-class", "potions-class", "transfiguration-class", "ancient-runes-class", "arithmancy-class", "care-of-magical-creatures-class", "divination-class", "muggle-studies-class"]
+        for class_name in classes:
+            self.scrape_raw_text(f"https://www.hp-lexicon.org/thing/{class_name}/")
+
 if __name__ == "__main__":
     try:
-        # clear scraped_urls.json
-        if os.path.exists("scraped_urls.json"):
-            os.remove("scraped_urls.json")
-            print("Cleared scraped_urls.json")
-        # clear hp_data folder contents
-        if os.path.exists("hp_data"):
-            for file in os.listdir("hp_data"):
-                os.remove(os.path.join("hp_data", file))
-            print("Cleared hp_data folder contents")
+        clear_scraped_urls()
+        clear_hp_data()
+
         scraper = Scraper(batch_size=20, store_callback=lambda: print(f"Scraped {scraper.documents_scraped} documents"))
-        scraper.retrieve_novels()
-        # Save scraped URLs when done
+        scraper.retrieve_characters()
         scraper._save_scraped_urls()
         print(f"Finished scraping {scraper.documents_scraped} documents")
+        
     except Exception as e:
         print(f"An error occurred: {e}")
         # Save scraped URLs even on error

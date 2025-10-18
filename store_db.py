@@ -8,6 +8,8 @@ import openai
 import os
 import shutil
 from scrape_hp import Scraper
+import threading
+import time
 
 load_dotenv()
 
@@ -58,8 +60,23 @@ def main():
     # create new database from documents
     vectorstore = Chroma(collection_name="harry_potter_collection", persist_directory=CHROMA_PATH, embedding_function=OpenAIEmbeddings())
 
+    before_time = time.time()
     scraper = Scraper(batch_size=20, store_callback=lambda: store_chroma_callback(vectorstore))
-    scraper.retrieve_things()
+    threads = []
+    threads.append(threading.Thread(target=scraper.retrieve_things))
+    threads.append(threading.Thread(target=scraper.retrieve_creatures))
+    threads.append(threading.Thread(target=scraper.retrieve_novels))
+    threads.append(threading.Thread(target=scraper.retrieve_events))
+    threads.append(threading.Thread(target=scraper.retrieve_magic))
+    threads.append(threading.Thread(target=scraper.retrieve_places))
+    threads.append(threading.Thread(target=scraper.retrieve_characters))
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    after_time = time.time()
+    print(f"Time taken: {after_time - before_time} seconds")
+    print(f"Scraped {scraper.documents_scraped} documents")
 
     clear_data_folder()
 
