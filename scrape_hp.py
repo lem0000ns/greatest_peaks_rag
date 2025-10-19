@@ -136,6 +136,7 @@ class Scraper:
             print(f"Skipping already scraped URL: {url}")
             return
         
+        tries = 0
         while True:
             try:
                 character_page = requests.get(url, headers=self.headers)
@@ -214,7 +215,9 @@ class Scraper:
                 break
             except (requests.exceptions.ConnectionError, ConnectionResetError) as e:
                 print(f"Connection error for {url}: {e}. Retrying in 10 seconds...")
-                time.sleep(10)
+                tries += 1
+                if tries > 2:
+                    break
             except Exception as e:
                 break
     
@@ -441,11 +444,11 @@ class Scraper:
 
         # Scrape magical items & devices
         magical_items_url = "https://www.hp-lexicon.org/thing-category/magical-objects/?letter={letter}"
-        self.scrape_catalog_by_letter(self, magical_items_url)
+        self.scrape_catalog_by_letter(magical_items_url)
 
         # Scrape magical and mundane plants
         mam_plants_url = "https://www.hp-lexicon.org/thing-category/plants/?letter={letter}"
-        self.scrape_catalog_by_letter(self, mam_plants_url)
+        self.scrape_catalog_by_letter(mam_plants_url)
 
     @timing_decorator
     def retrieve_things(self):
@@ -468,7 +471,7 @@ class Scraper:
         if explore_wizarding_world:
             ww_list = explore_wizarding_world.find_next_sibling("ul")
             if ww_list:
-                for i, item in enumerate(ww_list[:4].find_all("a")):
+                for i, item in enumerate(ww_list.find_all("a")[:4]):
                     item_url = item.get("href")
                     if item_url:
                         self.scrape_raw_text(item_url)
@@ -550,7 +553,33 @@ class Scraper:
         positions = [3, 4, 5, 7, 8, 9, 10]
         for position in positions:
             heading = soup.select_one(css_selector.format(position=position))
-            self.scrape_alphabetical_catalog(heading)
+            # hogwarts and schools
+            if position == 7:
+                ul_sibling = heading.find_next_sibling("ul")
+                if ul_sibling:
+                    li_elements = ul_sibling.find_all("li")[:6]
+                    for i, li in enumerate(li_elements):
+                        link = li.find("a")
+                        if link:
+                            url = link.get("href")
+                            if url:
+                                if i == 1:
+                                    self.scrape_raw_text(url, recursive=False)
+                                else:
+                                    self.scrape_raw_text(url, recursive=True)
+                    # Get 7th element for alphabetical catalog
+                    self.scrape_catalog_by_letter("https://www.hp-lexicon.org/placetype/schools/?letter={letter}")
+            # sports and recreation
+            elif position == 10:
+                self.scrape_catalog_by_letter("https://www.hp-lexicon.org/thing-category/sport/?letter={letter}")
+                self.scrape_catalog_by_letter("https://www.hp-lexicon.org/thing-category/sports-teams/?letter={letter}")
+                self.scrape_catalog_by_letter("https://www.hp-lexicon.org/thing-category/games-toys-and-jokes/?letter={letter}")
+                self.scrape_raw_text("https://www.hp-lexicon.org/thing/quidditch/")
+                self.scrape_raw_text("https://www.hp-lexicon.org/thing/quidditch-team/", recursive=True)
+                self.scrape_raw_text("https://www.hp-lexicon.org/thing/foul/", recursive=True)
+
+            else:
+                self.scrape_alphabetical_catalog(heading)
 
         # scrape quotes and essays
         quotes_heading = soup.find("h2", string="Quotes from Rowling")
@@ -590,13 +619,11 @@ class Scraper:
             for creature in creatures_list.find_all("a"):
                 creature_url = creature.get("href")
                 if creature_url:
+                    print(f"Scraping creature: {creature_url}")
                     self.scrape_raw_text(creature_url)
         
-        # scrape different dragon types
-        dragon_types = ["romanian-longhorn", "antipodean-opaleye", "hebridean-black", "short-snout", "chinese_fireball", "ukrainian-ironbelly", "horntail", "peruvian-vipertooth", "catalonian-fireball", "portuguese-long-snout", "welsh-green", "norwegian-ridgeback"]
-        for dragon_type in dragon_types:
-            dragon_url = f"https://www.hp-lexicon.org/creature/reptiles-and-amphibians/dragon/{dragon_type}/"
-            self.scrape_raw_text(dragon_url)
+        # scrape alphabetical catalog of creatures
+        self.scrape_catalog_by_letter("https://www.hp-lexicon.org/creature/?letter={letter}")
         
         # scrape different human-like creatures
         hlc_list = soup.select_one("html > body > article > section > div > div > section > div > div:nth-of-type(1) > div:nth-of-type(1) > ul")
@@ -604,6 +631,7 @@ class Scraper:
             for hlc in hlc_list.find_all("a"):
                 hlc_url = hlc.get("href")
                 if hlc_url:
+                    print(f"Scraping human-like creature: {hlc_url}")
                     self.scrape_raw_text(hlc_url)
     
     @timing_decorator
@@ -743,7 +771,7 @@ if __name__ == "__main__":
         clear_hp_data()
 
         scraper = Scraper(batch_size=20, store_callback=lambda: print(f"Scraped {scraper.documents_scraped} documents"))
-        scraper.retrieve_characters()
+        scraper.retrieve_things()
         scraper._save_scraped_urls()
         print(f"Finished scraping {scraper.documents_scraped} documents")
         

@@ -62,18 +62,15 @@ def main():
 
     before_time = time.time()
     scraper = Scraper(batch_size=20, store_callback=lambda: store_chroma_callback(vectorstore))
-    threads = []
-    threads.append(threading.Thread(target=scraper.retrieve_things))
-    threads.append(threading.Thread(target=scraper.retrieve_creatures))
-    threads.append(threading.Thread(target=scraper.retrieve_novels))
-    threads.append(threading.Thread(target=scraper.retrieve_events))
-    threads.append(threading.Thread(target=scraper.retrieve_magic))
-    threads.append(threading.Thread(target=scraper.retrieve_places))
-    threads.append(threading.Thread(target=scraper.retrieve_characters))
-    for thread in threads:
-        thread.start()
-    for thread in threads:
-        thread.join()
+    
+    scraper.retrieve_things()
+    scraper.retrieve_creatures() 
+    scraper.retrieve_novels()
+    scraper.retrieve_events()
+    scraper.retrieve_magic()
+    scraper.retrieve_places()
+    scraper.retrieve_characters()
+    
     after_time = time.time()
     print(f"Time taken: {after_time - before_time} seconds")
     print(f"Scraped {scraper.documents_scraped} documents")
