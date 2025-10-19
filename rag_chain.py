@@ -9,6 +9,9 @@ from dotenv import load_dotenv
 import openai
 import os
 import argparse
+from langchain.retrievers import EnsembleRetriever, ContextualCompressionRetriever
+from langchain_community.retrievers import BM25Retriever
+from langchain.schema import Document
 
 load_dotenv()
 
@@ -34,7 +37,7 @@ def print_docs_information(query_results):
         print("-" * 100)
 
 def get_qa_chain():
-    vectorstore = Chroma(collection_name="players_collection", persist_directory=CHROMA_PATH, embedding_function=OpenAIEmbeddings())
+    vectorstore = Chroma(collection_name="harry_potter_collection", persist_directory=CHROMA_PATH, embedding_function=OpenAIEmbeddings())
 
     # Use from_template for retrieval chains
     rag_prompt = ChatPromptTemplate.from_messages(
@@ -44,9 +47,21 @@ def get_qa_chain():
         ]
     )
     
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
     question_answer_chain = create_stuff_documents_chain(llm=ChatOpenAI(model_name='gpt-4o-mini'), prompt=rag_prompt)
-    rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+
+    # dense retrieval with vector embeddings
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+
+    # sparse retrieval using BM25
+    raw = vectorstore.get()
+    documents = [Document(page_content=text, metadata=meta) for text, meta in zip(raw['documents'], raw['metadatas'])]
+    keyword_retriever = BM25Retriever.from_documents(documents)
+    keyword_retriever.k = 5
+
+    ensemble_retriever = EnsembleRetriever(retrievers=[retriever, keyword_retriever], weights=[0.5, 0.5])
+
+    # create retrieval chain
+    rag_chain = create_retrieval_chain(ensemble_retriever, question_answer_chain)
     return rag_chain
 
 def main():
