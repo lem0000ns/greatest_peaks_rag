@@ -71,7 +71,7 @@ def get_agent_chain():
                             memory=memory,
                             max_iterations=5,
                             handle_parsing_errors=True,
-                            verbose=False,
+                            verbose=True,
                             )
     return agent_chain
 
