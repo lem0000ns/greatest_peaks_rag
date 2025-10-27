@@ -36,7 +36,7 @@ def print_docs_information(query_results):
         print(f"Content of result {i+1}: ", result[0])
         print("-" * 100)
 
-def get_qa_chain():
+def get_retriever():
     vectorstore = Chroma(collection_name="harry_potter_collection", persist_directory=CHROMA_PATH, embedding_function=OpenAIEmbeddings())
 
     # Use from_template for retrieval chains
@@ -60,6 +60,10 @@ def get_qa_chain():
 
     ensemble_retriever = EnsembleRetriever(retrievers=[retriever, keyword_retriever], weights=[0.5, 0.5])
 
+    return ensemble_retriever, question_answer_chain
+
+def get_qa_chain():
+    ensemble_retriever, question_answer_chain = get_retriever()
     # create retrieval chain
     rag_chain = create_retrieval_chain(ensemble_retriever, question_answer_chain)
     return rag_chain
